@@ -224,12 +224,12 @@ export default function Home() {
                 <input
                   type="password"
                   className="w-full bg-white border border-gray-100 rounded-xl py-3 px-4 focus:border-[#2CB696] focus:ring-1 focus:ring-[#2CB696] transition-all outline-none placeholder:text-gray-300 text-sm"
-                  placeholder="AIzaSy..."
+                  placeholder="AIzaSy...（複数入力はカンマ区切り）"
                   value={apiKey}
                   onChange={(e) => handleApiKeyChange(e.target.value)}
                 />
                 <p className="text-[10px] text-[#999] leading-relaxed">
-                  ※ APIキーはあなたのブラウザにのみ保存されます。キーをお持ちでない方は <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-[#2CB696] underline">Google AI Studio</a> で取得してください。
+                  ※ APIキーはあなたのブラウザにのみ保存されます。複数入力するとランダムに切り替えて使用します。キーをお持ちでない方は <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-[#2CB696] underline">Google AI Studio</a> で取得してください。
                 </p>
               </div>
 
