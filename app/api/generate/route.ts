@@ -142,7 +142,7 @@ ${sourcePrompt}
 ${patternPrompt}
 ${platformInstructions}
 
-それでは、読者の本棚に一生残るような、圧倒的な品質の1万文字原稿を執筆してください。
+それでは、読者の本棚に一生残るような、圧倒的な品質の5,000文字原稿を執筆してください。
 `;
 
         if (!finalApiKey) {
