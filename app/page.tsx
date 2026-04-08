@@ -30,6 +30,7 @@ export default function Home() {
   const [copiedText, setCopiedText] = useState(false);
   const [activeTab, setActiveTab] = useState<'preview' | 'html'>('preview');
   const [suggesting, setSuggesting] = useState(false);
+  const [linkPlacement, setLinkPlacement] = useState<'end' | 'middle'>('end');
 
   useEffect(() => {
     const savedKey = localStorage.getItem('gemini_api_key');
@@ -91,6 +92,7 @@ export default function Home() {
           keyword,
           worries,
           affiliateUrl,
+          linkPlacement,
         }),
       });
 
@@ -236,6 +238,37 @@ export default function Home() {
                       required
                     />
                   </div>
+                </div>
+
+                <div className="space-y-6">
+                  <label className="block text-xs font-bold text-[#999] uppercase tracking-widest mb-3">
+                    リンク設置箇所
+                  </label>
+                  <div className="flex bg-gray-50/50 p-1 rounded-2xl border border-gray-100 max-w-sm">
+                    <button
+                      type="button"
+                      onClick={() => setLinkPlacement('end')}
+                      className={`flex-1 py-2 px-4 rounded-xl text-xs font-bold transition-all ${linkPlacement === 'end'
+                        ? 'bg-white shadow-sm text-[#2CB696]'
+                        : 'text-[#999] hover:text-[#666]'
+                        }`}
+                    >
+                      標準（記事下のみ）
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setLinkPlacement('middle')}
+                      className={`flex-1 py-2 px-4 rounded-xl text-xs font-bold transition-all ${linkPlacement === 'middle'
+                        ? 'bg-white shadow-sm text-[#2CB696]'
+                        : 'text-[#999] hover:text-[#666]'
+                        }`}
+                    >
+                      ABテスト用（中挿し＋記事下）
+                    </button>
+                  </div>
+                  <p className="text-[10px] text-[#999] leading-relaxed">
+                    ※ 記事構成の途中に自然な形でリンクを1箇所追加し、クリック率を向上させます。
+                  </p>
                 </div>
               </div>
 
