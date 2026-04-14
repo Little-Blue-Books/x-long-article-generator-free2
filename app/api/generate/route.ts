@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 
 async function withRetry<T>(
     fn: () => Promise<T>,
@@ -73,10 +73,26 @@ ${isMiddleLink ? '   ※ 見出し2の直後など、読者の興味が高まっ
         try {
             const genAIInstance = new GoogleGenerativeAI(finalApiKey);
             const modelName = 'gemini-3.1-flash-lite-preview';
-            const model = genAIInstance.getGenerativeModel({ model: modelName });
+            const model = genAIInstance.getGenerativeModel({ 
+                model: modelName,
+                safetySettings: [
+                    { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+                    { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+                    { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+                    { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+                ],
+            });
 
             const result = await withRetry(() => model.generateContent(systemPrompt));
             const response = await result.response;
+
+            // 安全フィルターなどでブロックされた場合のハンドリング
+            if (response.candidates && response.candidates[0]?.finishReason === 'SAFETY') {
+                return NextResponse.json({ 
+                    error: "生成内容が安全フィルターにより制限されました。表現を和らげるか、別のキーワードでお試しください。"
+                }, { status: 400 });
+            }
+
             let text = response.text();
 
             if (!text) {

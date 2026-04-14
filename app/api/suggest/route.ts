@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 
 export async function POST(req: NextRequest) {
     try {
@@ -37,10 +37,27 @@ export async function POST(req: NextRequest) {
 
         try {
             const genAIInstance = new GoogleGenerativeAI(finalApiKey);
-            const model = genAIInstance.getGenerativeModel({ model: 'gemini-3.1-flash-lite-preview' });
+            const model = genAIInstance.getGenerativeModel({ 
+                model: 'gemini-3.1-flash-lite-preview',
+                safetySettings: [
+                    { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+                    { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+                    { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+                    { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+                ],
+            });
 
             const result = await model.generateContent(systemPrompt);
             const response = await result.response;
+            
+            // 安全フィルターなどでブロックされた場合のハンドリング
+            if (response.candidates && response.candidates[0]?.finishReason === 'SAFETY') {
+                return NextResponse.json({ 
+                    suggestion: "申し訳ありません。このキーワードに関する提案は安全フィルターにより制限されました。別のキーワードでお試しください。",
+                    isBlocked: true
+                });
+            }
+
             const text = response.text().trim();
 
             return NextResponse.json({ suggestion: text });
