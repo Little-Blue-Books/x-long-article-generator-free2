@@ -44,25 +44,36 @@ export async function POST(req: NextRequest) {
                 { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
             ];
 
-            // フォールバック付きの生成ロジック
+            // フォールバック付きの生成ロジック（しらみつぶしに試行）
             let response;
-            try {
-                // 第一候補: Gemini 3.1
-                const model = genAIInstance.getGenerativeModel({ 
-                    model: 'gemini-3.1-flash-lite-preview',
-                    safetySettings
-                });
-                const result = await model.generateContent(systemPrompt);
-                response = await result.response;
-            } catch (firstError: any) {
-                console.warn('Suggest API: First model attempt failed, falling back to 1.5-flash:', firstError.message);
-                // 第二候補: Gemini 1.5 Flash
-                const model = genAIInstance.getGenerativeModel({ 
-                    model: 'gemini-1.5-flash',
-                    safetySettings
-                });
-                const result = await model.generateContent(systemPrompt);
-                response = await result.response;
+            let lastError;
+            const modelsToTry = [
+                'gemini-3.1-flash-lite-preview',
+                'gemini-2.0-flash-exp',
+                'gemini-1.5-flash-latest',
+                'gemini-1.5-flash',
+                'gemini-pro'
+            ];
+
+            for (const modelName of modelsToTry) {
+                try {
+                    console.log(`Suggest API: Attempting generation with model: ${modelName}`);
+                    const model = genAIInstance.getGenerativeModel({ 
+                        model: modelName,
+                        safetySettings
+                    });
+                    const result = await model.generateContent(systemPrompt);
+                    response = await result.response;
+                    if (response) break;
+                } catch (err: any) {
+                    console.warn(`Suggest API: Model ${modelName} failed/not found:`, err.message);
+                    lastError = err;
+                    continue;
+                }
+            }
+
+            if (!response) {
+                throw lastError || new Error('利用可能なAIモデルが見つかりませんでした。');
             }
             
             // 安全フィルターなどでブロックされた場合のハンドリング
