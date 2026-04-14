@@ -73,15 +73,7 @@ export async function POST(req: NextRequest) {
             }
 
             if (!response) {
-                // 診断：利用可能なモデルをリストアップしてみる
-                let availableModelsStr = 'none';
-                try {
-                    const modelList = await genAIInstance.listModels();
-                    availableModelsStr = modelList.models.map(m => m.name).join(', ');
-                } catch (listErr) {
-                    availableModelsStr = `failed to list (${listErr instanceof Error ? listErr.message : 'unknown error'})`;
-                }
-                throw new Error(`利用可能なモデルが見つかりませんでした。利用可能リスト: [${availableModelsStr}]`);
+                throw new Error(`利用可能なモデルが見つかりませんでした。お使いのAPIキーで 'Generative Language API' が有効になっているか、または地域制限がないかご確認ください。 (試行モデル: ${modelsToTry.join(', ')})`);
             }
             
             // 安全フィルターなどでブロックされた場合のハンドリング

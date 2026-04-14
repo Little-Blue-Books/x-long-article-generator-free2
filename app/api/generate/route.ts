@@ -108,16 +108,8 @@ ${isMiddleLink ? '   ※ 見出し2の直後など、読者の興味が高まっ
             }
 
             if (!response) {
-                // 診断：利用可能なモデルをリストアップしてみる
-                let availableModelsStr = 'none';
-                try {
-                    const modelList = await genAIInstance.listModels();
-                    availableModelsStr = modelList.models.map(m => m.name).join(', ');
-                } catch (listErr) {
-                    availableModelsStr = `failed to list (${listErr instanceof Error ? listErr.message : 'unknown error'})`;
-                }
-
-                throw new Error(`利用可能なAIモデルが見つかりませんでした。このキーで認識されているモデル一覧: [${availableModelsStr}]`);
+                const availableModelsHint = "gemini-1.5-flash, gemini-1.5-pro, gemini-pro";
+                throw new Error(`利用可能なモデルが見つかりませんでした。お使いのAPIキーで 'Generative Language API' が有効になっているか、または地域制限がないかご確認ください。 (試行モデル: ${modelsToTry.join(', ')})`);
             }
 
             // 安全フィルターなどでブロックされた場合のハンドリング
