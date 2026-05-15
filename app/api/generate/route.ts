@@ -83,7 +83,7 @@ ${isMiddleLink ? '   ※ 見出し2の直後など、読者の興味が高まっ
             let response;
             let lastError;
             const modelsToTry = [
-                'gemini-3.1-flash-lite-preview',
+                'gemini-3.1-flash-lite',
                 'gemini-2.0-flash-exp',
                 'gemini-1.5-flash-latest',
                 'gemini-1.5-flash',
